@@ -1,0 +1,58 @@
+<@@@ using System.Collections; @>
+<@@
+static string getSessionCookie()
+{
+	return _CONNECTION.requestCookies["username"] != null ? _CONNECTION.requestCookies["username"].Value : null;
+}
+@>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Unnamed conlang</title>
+	<meta charset='utf-8' />
+	<link rel="stylesheet" type="text/css" href="style/cssf.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(".clickableTD").mouseenter(function(e) {
+			$(this).css({
+				"background" : "-webkit-gradient(linear, left top, left bottom, from(cornflowerblue), to(deepskyblue))"
+			});
+			$(this).css("color", "white");
+		});
+		$(".clickableTD").mouseout(function(e) {
+			$(this).css({
+				background: "deepskyblue"
+			});
+			$(this).css("color", "black");
+		});
+	});
+	</script>
+</head>
+<body>
+	<div id="upperDiv">
+		<table style="height: 90%; width: 100%; table-layout: fixed;" border='0'>
+			<tr>
+				<td style="width: 5%;" class="clickableTD">
+					&nbsp;
+				</td>
+				<td style="width: 35%;">
+					<h1>The unnamed conlang</h1>
+				</td>
+				<td style="width: 15%;" class="clickableTD" linkto="/index.aspx">
+					Main page
+				</td>
+				<td style="width: 15%;" class="clickableTD">
+					Proposals
+				</td>
+				<td style="width: 15%;" class="clickableTD">
+					Dictionary
+				</td>
+				<td style="width: 15%;" class="clickableTD">
+					<@ echo(getSessionCookie() ?? "Login"); @>
+				</td>
+			</tr>
+		</table>
+	</div>
+<@
+@>

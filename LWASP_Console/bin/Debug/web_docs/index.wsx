@@ -1,0 +1,233 @@
+<%include methods.wsx%>
+<@
+if (GetCookie("username") != null && GetCookie("session") != null)
+{
+	if (ReadAction(String.Format("SELECT * FROM Users WHERE Username='{0}' AND SessionCode='{1}';", 
+		Escape(GetCookie("username")), Escape(GetCookie("session")))).Count > 0)
+	{
+		_CONNECTION.Redirect("panel.wsx");
+	}
+}
+@>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>LinguLearn</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="StyleSheet" type="text/css" href="/style/index.css" />
+	<link rel="StyleSheet" type="text/css" href="/style/animate.css" />
+	<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery-ui.js"></script>
+	<script type="text/javascript">
+		function showSignupError(s) {
+			$("#errorSpan").css({display: ""});
+			$("#errorSpan").text(s);
+		}
+		
+		function showSigninError(s) {
+			$("#errorinSpan").css({display: ""});
+			$("#errorinSpan").text(s);
+		}
+		
+		var e = encodeURIComponent;
+		
+		$(document).ready(function() {
+			var bgImg = new Image();
+			bgImg.src = "/assets/index2.jpg";
+			bgImg.onload = function(){
+				document.body.style.backgroundImage = 'url(' + bgImg.src + ')';
+				document.body.style.backgroundSize = window.innerWidth + 'px ' + window.innerHeight + 'px';
+				document.body.style.display = "";
+				$("#mainContent").css({display: "block"});
+				$("#topMenu").css({animationName: "openTop"});
+				$("#bottomMenu").css({animationName: "openBottom"});
+				$("#topMenuLine").css({animationName: "openTopLine"});
+				$("#registerDiv").addClass("animated bounceInUp");
+				$("#signinDiv").addClass("animated bounceInUp");
+			};
+			$("#firstContent").css({height: window.innerHeight});
+			$("#signUpButton").mouseenter(function() {
+				$(this).css({'transition':'background-color .3s','background-color':'skyblue'});
+			});
+			$("#signUpButton").mouseleave(function() {
+				$(this).css({'transition':'background-color .3s','background-color':'royalblue'});
+			});
+			$("#SignInButton").mouseenter(function() {
+				$(this).css({'transition':'background-color .3s','background-color':'skyblue'});
+			});
+			$("#SignInButton").mouseleave(function() {
+				$(this).css({'transition':'background-color .3s','background-color':'royalblue'});
+			});
+			$("#SignInButton").click(function() {
+				if ($("#__username").val().length < 1) {
+					showSigninError("You must specify your username");
+				}
+				else if ($("#__password").val().length < 1) {
+					showSigninError("You must specify your password");
+				}
+				else {
+					$("#loadingGIF").css({display: "block"});
+					$.ajax({
+						url: "login.wsx",
+						type: "post",
+						data: {
+							__username: $("#__username").val(),
+							__password: $("#__password").val()
+						},
+						success: function (e) {
+							$("#loadingGIF").css({display: "none"});
+							if (~e.indexOf("Error:")) {
+								showSigninError(e.replace(/Error:/g, ""));
+							}
+							else {
+								$("#loadingGIF").css({display: "none"});
+								location.reload();
+							}
+							//document.write(e);
+						},
+						error: function (a, b, c) {
+							$("#loadingGIF").css({display: "none"});
+						}
+					});
+				}
+			});
+			$("#signUpButton").click(function() {
+				if ($("#_username").val().length < 6)
+				{
+					showSignupError('Username must contain at least 6 characters.');
+				}
+				else if ($("#_username").val().length > 16) {
+					showSignupError('Username must contain at most 16 characters.');
+				}
+				else if (~$("#_password").val().indexOf(" ")) {
+					showSignupError('Username may not contain whitespaces');
+				}
+				else if ($("#_password").val().length < 6) {
+					showSignupError('Password must contain at least 6 characters.');
+				}
+				else if ($("#_password").val().length > 30)	{
+					showSignupError('Password must contain at most 30 characters.');
+				}
+				else if ($("#_password").val() != $("#_confirmpassword").val()) {
+					showSignupError('Password and confirmation do not match.');
+				}
+				else if (!$("#_password").val().match(/[A-Z]/g)) {
+					showSignupError("Password must contain at least 1 uppercase character.");
+				}
+				else if (!$("#_password").val().match(/[a-z]/g)) {
+					showSignupError("Password must contain at least 1 lowercase character.");
+				}
+				else if (!$("#_password").val().match(/[0-9]/g)) {
+					showSignupError("Password must contain at least 1 digit.");
+				}
+				else if (!$("#_email").val().match(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
+					showSignupError("Email format is incorrect");
+				}
+				else if ($("#_name").val().length < 1) {
+					showSignupError("Please specify your full name");
+				}
+				else if ($("#_about").val().length < 1) {
+					showSignupError("Please specify your about");
+				}
+				else {
+					$("#errorSpan").css({display: "none"});
+					$("#loadingGIF").css({display: "block"});
+					$.ajax({
+						url: "register.wsx",
+						type: "POST",
+						data: {
+							username: e($("#_username").val()),
+							password: e($("#_password").val()),
+							email: e($("#_email").val()),
+							fullname: e($("#_name").val()),
+							about: e($("#_about").val())
+						},
+						success: function(e) {
+							$("#loadingGIF").css({display: "none"});
+							if (~e.indexOf("Error:")) {
+								showSignupError(e.replace(/Error: /g, ""));
+							}
+							else {
+								//location.reload();
+								document.write(e);
+							}
+						},
+						error: function(a, b, c) {
+							$("#loadingGIF").css({display: "none"});
+						}
+					});
+				}
+			});
+		});
+	</script>
+</head>
+<body style="display: none">
+	<div id="firstContent">
+		<div id="topMenu">
+			<h1 id="titleH1">LinguLearn</h1>
+		</div>
+		<div id="topMenuLine">
+			Always keep learning!
+		</div>
+		<div id="mainContent" style="display: none">
+			<table id="contentTable" border='0'>
+			<tr>
+			<td class="contentCell">
+				<div id="registerDiv">
+					<span><h2>Sign up</h2></span>
+					<table style="table-layout: fixed; margin: 0 auto;">
+						<tr>
+							<td><b>Username</b></td><td><input class="textBox" type="text" name="_username" id="_username" /></td>
+						</tr>
+						<tr> 
+							<td><b>Password</b></td><td><input class="textBox" type="password" name="_password" id="_password" /></td>
+						</tr>
+						<tr>
+							<td><b>Confirm Password</b></td><td><input class="textBox" type="password" name="_confirmpassword" id="_confirmpassword" /></td>
+						</tr>
+						<tr>
+							<td><b>Email</b></td><td><input class="textBox" type="text" name="_email" id="_email" /></td>
+						</tr>
+						<tr>
+							<td><b>Full name</b></td><td><input class="textBox" type="text" name="_name" id="_name" /></td>
+						</tr>
+						<tr>
+							<td><b>About</b></td><td><textarea class="textBox" style="height: 100px; width: 100%;" type="text" name="_about" id="_about"></textarea></td>
+						</tr>
+					</table>
+					<b><span id="errorSpan" style="color: red; display: none;">This is the error message</span></b>
+					<div id="signUpButton">
+						<b>Sign up!</b>
+					</div>
+				</div>
+			</td>
+			<td class="contentCell">
+				<div id="signinDiv">
+				<h2>Sign in</h2>
+				<br/><br/><br/>
+				<table style="table-layout: fixed; margin: 0 auto;">
+				<tr>
+					<td><b>Username</b></td><td><input class="textBox" type="text" name="__username" id="__username" /></td>
+				</tr>
+				<tr>
+					<td><b>Password</b></td><td><input class="textBox" type="password" name="__password" id="__password" /></td>
+				</tr>
+				</table>
+				<b><span id="errorinSpan" style="color: red; display: none;">This is the error message</span></b>
+				<div id="SignInButton">
+					<b>Sign in!</b>
+				</div>
+				</div>
+			</td>
+			</tr>
+			</table>
+		</div>
+		<div id="bottomMenu">
+			&nbsp;
+		</div>
+		<img src="assets/loading.gif" id="loadingGIF" />
+	</div>
+</body>
+</html>

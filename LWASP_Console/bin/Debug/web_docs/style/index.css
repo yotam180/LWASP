@@ -1,0 +1,204 @@
+body
+{
+	margin: 0 0 0 0;
+	font-family: Arial;
+	background-size:100px 100px;
+}
+
+#firstContent
+{
+	width: 100%;
+	background-size: cover;
+}
+
+@keyframes openTop
+{
+	0% { height: 0;}
+	100% {height: 15%; }
+}
+
+@keyframes openTopLine
+{
+	0% {
+		height: 0;
+		top: 0;
+		opacity: 0;
+		font-size: 1px;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		height: 5%;
+		top: 15%;
+		opacity: 0.7;
+		font-size: 20px;
+	}
+}
+
+@keyframes openBottom
+{
+	0% { height: 0;}
+	100% {height: 15%; }
+}
+
+@keyframes showTitle
+{
+	0% {
+		opacity: 0;
+	}
+	30% {
+		opacity: 0;
+		line-height: 50px;
+	}
+	100% {
+		opacity: 1;
+		line-height: 25px;
+	}
+}
+
+@font-face
+{
+	font-family: Hacked;
+	src: url("../font/HACKED.ttf");
+}
+
+#topMenu
+{
+	width: 100%;
+	height: 15%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: black;
+	opacity: .5;
+	animation-duration: 2s;
+	text-align: center;
+	font-family: Hacked;
+	color: blue;
+	font-size: 30px;
+	line-height: 25px;
+	letter-spacing: 3px;
+}
+
+#bottomMenu
+{
+	width: 100%;
+	height: 15%;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background-color: black;
+	opacity: .5;
+	animation-name: openBottom;
+	animation-duration: 2s;
+}
+
+#topMenuLine
+{
+	height: 5%;
+	width: 100%;
+	background-color: royalblue;
+	opacity: 0.8;
+	position: fixed;
+	top: 15%;
+	left: 0;
+	animation-name: openTopLine;
+	animation-duration: 2s;
+	text-align: center;
+	font-family: Arial;
+	color: white;
+	font-size: 20px;
+}
+
+#titleH1
+{
+	animation-name: showTitle;
+	animation-duration: 3s;
+}
+
+#mainContent
+{
+	position: fixed;
+	top: 20%;
+	height: 65%;
+	width: 100%;
+	left: 0;
+}
+
+#contentTable
+{
+	height: 100%;
+	width: 100%;
+	table-layout: fixed;
+	
+}
+
+.contentCell
+{
+	width: 50%;
+	text-align: center;
+}
+
+#registerDiv
+{
+	text-align: center;
+	width: 70%;
+	height: 90%;
+	background-color: rgba(170, 170, 170, 0.7);
+	margin: auto;
+	border-radius: 20px;
+}
+
+#signinDiv
+{
+	text-align: center;
+	width: 70%;
+	height: 90%;
+	background-color: rgba(170, 170, 170, 0.7);
+	margin: auto;
+	border-radius: 20px;
+}
+
+.textBox
+{
+	font-size: 15px;
+	border-radius: 13px;
+	text-indent: 6px;
+	outline: none;
+}
+
+#signUpButton
+{
+	width: 30%;
+	height: 10%;
+	cursor: pointer;
+	border-radius: 10px;
+	background-color: royalblue;
+	vertical-align: middle;
+	line-height: 200%;
+	margin: auto;
+}
+
+#SignInButton
+{
+	width: 30%;
+	height: 10%;
+	cursor: pointer;
+	border-radius: 10px;
+	background-color: royalblue;
+	vertical-align: middle;
+	line-height: 200%;
+	margin: auto;
+}
+
+#loadingGIF
+{
+	display: none;
+	z-index: 500;
+	position: fixed;
+	top: 32%;
+	height: 36%;
+	left: 43%;
+	width: 16%;
+}

@@ -1,0 +1,5 @@
+<@
+if (_CONNECTION.HttpMethod != "POST") return;
+HttpMultipartParser parser = new HttpMultipartParser(_POSTDATA, "thefile");
+echo(parser.ContentType);
+@>

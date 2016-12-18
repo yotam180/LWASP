@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+	<title>Editor</title>
+	<style type="text/css" media="screen">
+		body {
+			overflow: hidden;
+		}
+		
+		#editor { 
+			margin: 0;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			width: 80%;
+			height: 90%;
+			z-index: 100;
+		}
+		
+		#solution {
+			background-color: skyblue;
+			position: fixed;
+			bottom: 0;
+			right: 0;
+			width: 20%;
+			height: 90%;
+			overflow: scroll;
+		}
+		
+		#tabs {
+			background-color: #ccc;
+			position: fixed;
+			top: 5%;
+			height: 5%;
+			width: 100%;
+			left: 0%;
+		}
+		
+		#menu {
+			background-color: bisque;
+			position: fixed;
+			top: 0%;
+			height: 5%;
+			width: 100%;
+			left: 0%;
+		}
+	</style>
+<head>
+</head>
+<body>
+	<pre id="editor"></pre>
+	<div id="solution"></div>
+	<div id="tabs"></div>
+	<div id="menu">
+		<table style="table-layout: fixed; width: 100%; height: 100%;"><tr>
+		<td><b style='font-size: larger;'>LWASP Studio</b></td>
+		<td style="cursor: pointer;" onclick="closeTab();">Close tab</td>
+		<td>New file</td>
+		<td>
+			<select id="lang">
+			<option value="ws">WebScript</option>
+			<option value="html">HTML</option>
+			<option value="cs">C#</option>
+			<option value="css">CSS</option>
+			</select>
+		</td>
+		<td>
+			<select>
+			<option>Monokai</option>
+			<option>Github</option>
+			<option>Solarized dark</option>
+			<option>CSS</option>
+			</select>
+		</td>
+		<td>Close tab</td>
+		</tr></table>
+	</div>
+	<script src="ace.js"></script>
+	<script src="jquery.js"></script>
+	<script src="ext-language_tools.js"></script>
+	<script src="ext-searchbox.js"></script>
+	<script type="text/javascript">
+		window.OPENED_FILES = {};
+		window.UNSAVED_FILES = {};
+		window.CURRENT_FILE = "";
+		window.TABS = [];
+		window._next_input_machine = false;
+	
+		function fileTree (arr) {
+			str = "<pre>";
+			lstfldr = "";
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i].substring(0, arr[i].lastIndexOf("\\")).length < 1) continue;
+				if (arr[i].substring(0, arr[i].lastIndexOf("\\")) != lstfldr) {
+					lstfldr = arr[i].substring(0, arr[i].lastIndexOf("\\"));
+					str += "<b>" + lstfldr + "</b><br/>&nbsp;&nbsp;&nbsp;<a href='#' onclick='getFileFromLWASP(\"" + arr[i].replace(/\\/g, "\\\\") + "\");'>" + arr[i].substring(arr[i].lastIndexOf("\\") + 1) + "</a><br/>";
+				}
+				else {
+					str += "&nbsp;&nbsp;&nbsp;<a href='#' onclick='getFileFromLWASP(\"" + arr[i].replace(/\\/g, "\\\\") + "\");'>" + arr[i].substring(arr[i].lastIndexOf("\\") + 1) + "</a><br/>";
+				}
+			}
+			return str + "</pre>";
+		}
+		
+		function getFileFromLWASP(f) {
+			if (f in window.OPENED_FILES) {
+				if (CURRENT_FILE && CURRENT_FILE in window.OPENED_FILES)
+					window.OPENED_FILES[CURRENT_FILE] = editor.session.getValue();
+				window.CURRENT_FILE = f;
+				window._next_input_machine = true;
+				editor.session.setValue(OPENED_FILES[f]);
+				if (f in window.TABS) {
+					window.TABS.splice(window.TABS.indexOf(f), 1);
+				}
+				window.TABS.unshift(f);
+				$("#tabs").html(generateTabs());
+			}
+			else {
+				$.ajax({
+					url: "http://localhost:25566/get_file/" + f,
+					type: "get",
+					success: function(e) {
+						if (CURRENT_FILE && CURRENT_FILE in window.OPENED_FILES)
+							window.OPENED_FILES[CURRENT_FILE] = editor.session.getValue();
+						window.CURRENT_FILE = f;
+						window.OPENED_FILES[CURRENT_FILE] = e;
+						window._next_input_machine = true;
+						editor.session.setValue(e);
+						if (f in window.TABS) {
+							window.TABS.splice(window.TABS.indexOf(f), 1);
+						}
+						window.TABS.unshift(f);
+						$("#tabs").html(generateTabs());				
+					}
+				});
+			}
+		}
+		
+		function generateTabs() {
+			var t = "<table style='height: 100%;' border='1'><tr>";
+			for (var i = 0; i < window.TABS.length; i++) {
+				t += "<td style='height: 100%; cursor: pointer;' onclick='gotoTab(\"" + window.TABS[i].replace(/\\/g, "\\\\") + "\")'>" + (CURRENT_FILE == TABS[i] ? "<b>" : "") + (window.TABS[i] in window.UNSAVED_FILES ? "<span style='color: darkred'>" : "") + window.TABS[i].substring(window.TABS[i].lastIndexOf("\\") + 1) + (window.TABS[i] in window.UNSAVED_FILES ? "</span>" : "") + (CURRENT_FILE == TABS[i] ? "</b>" : "") + "</td>";
+			}
+			return t + "</tr></table>"
+		}
+		
+		function gotoTab(t) {
+			if (t == CURRENT_FILE) return;
+			if (CURRENT_FILE in window.OPENED_FILES)
+				OPENED_FILES[CURRENT_FILE] = editor.session.getValue();
+			CURRENT_FILE = t;
+			if (CURRENT_FILE in window.OPENED_FILES) {
+				$("#tabs").html(generateTabs());
+				window._next_input_machine = true;
+				editor.session.setValue(OPENED_FILES[t]);
+			}
+			else {
+				getFileFromLWASP(t);
+			}
+		}
+		
+		function closeTab() {
+			if (UNSAVED_FILES[CURRENT_FILE]) {
+				var sure = confirm("Are you sure you want to exit this tab? You have unsaved changes!");
+				if (!sure) return;
+			}
+			window.TABS.splice(window.TABS.indexOf(CURRENT_FILE), 1);
+			delete OPENED_FILES[CURRENT_FILE];
+			delete UNSAVED_FILES[CURRENT_FILE];
+			if (window.TABS.length > 0) {
+				gotoTab(window.TABS[0]);
+			}
+			else {
+				window._next_input_machine;
+				editor.session.setValue("");
+				CURRENT_FILE = "";
+			}
+			$("#tabs").html(generateTabs());
+		}
+		
+		function saveFile() {
+			$.ajax({
+				url: "http://localhost:25566/save_file/" + CURRENT_FILE,
+				type: "post",
+				data: editor.session.getValue(),
+				success: function(e) {
+					if (e == "success") {
+						delete window.UNSAVED_FILES[CURRENT_FILE];
+						$("#tabs").html(generateTabs());
+					}
+					else {
+						alert(e);
+					}
+				}
+			});
+		}
+	
+		ace.require("ace/ext/language_tools");
+		var config = require("./config");
+		window.editor = ace.edit("editor");
+		window.editor.session.setMode("ace/mode/csharp");
+		window.editor.setTheme("ace/theme/monokai");
+		// enable autocompletion and snippets
+		window.editor.setOptions({
+			enableBasicAutocompletion: true,
+			enableSnippets: true,
+			enableLiveAutocompletion: true
+		});
+		window.editor.commands.addCommand({
+			name: 'save',
+			bindKey: {win: "Ctrl-S", "mac": "Cmd-S"},
+			exec: function(editor) {
+				saveFile();
+			}
+		});
+		editor.completers.push({
+					getCompletions: function(editor, session, pos, prefix, callback) {
+					  callback(null, [
+						{value: "_CONNECTION", score: 1000, meta: "LWASP built-in"},
+						{value: "_CONNECTION.Redirect", score: 1000, meta: "LWASP built-in"},
+						{value: "_CONNECTION.SealHeaders", score: 1000, meta: "LWASP built-in"},
+						{value: "_CONNECTION.HttpMethod", score: 1000, meta: "LWASP built-in"},
+						{value: "_CONNECTION.HttpVersion", score: 1000, meta: "LWASP built-in"},
+						{value: "_CONNECTION.HttpURL", score: 1000, meta: "LWASP built-in"},
+						{value: "_GET", score: 1000, meta: "LWASP built-in"},
+						{value: "_POST", score: 1000, meta: "LWASP built-in"},
+						{value: "_POSTDATA", score: 1000, meta: "LWASP built-in"},
+						{value: "LWASP", score: 1000, meta: "LWASP built-in"},
+						{value: "echo", score: 1000, meta: "LWASP built-in"}
+					  ]);
+					}
+				});
+		//config.loadModule("ace/ext/searchbox", function(m) {m.Search(editor)});
+		var a = setInterval(function() {
+				window.editor = ace.edit("editor");
+				var x = (function()
+				{
+				var str = window.editor.session.getValue().replace(/\s/g, "+");
+				var patt = /<@((.|\n)+?)@>/g;
+				while (match = patt.exec(str)) {
+				  var ind = (function(position) {
+					  var text = window.editor.session.getTextRange({start:{column:0,row:0},end: position});
+					  return text.length;
+					})(editor.getCursorPosition());
+				if (ind > match.index && ind < patt.lastIndex) return true;
+				}
+				return false;
+				})();
+				if ($("#lang").val() == "ws")
+					window.editor.session.setMode("ace/mode/" + (x ? "csharp" : "html"));
+				else if ($("#lang").val() == "html")
+					window.editor.session.setMode("ace/mode/html");
+				else if ($("#lang").val() == "cs")
+					window.editor.session.setMode("ace/mode/csharp");
+				else
+					window.editor.session.setMode("ace/mode/css");
+		}, 100);
+		var b = setInterval(function() {
+			$.ajax({
+				url: "http://localhost:25566/status",
+				type: "get", 
+				success: function(e) {
+					var json = JSON.parse(e);
+					$("#solution").html(fileTree(json["files"]));
+				}
+			});
+		}, 1000);
+		editor.on("input", function() {
+			if (window._next_input_machine) {
+				window._next_input_machine = false;
+				return;
+			}
+			if (CURRENT_FILE) {
+				window.OPENED_FILES[CURRENT_FILE] = editor.session.getValue();
+				window.UNSAVED_FILES[CURRENT_FILE] = true;
+				$("#tabs").html(generateTabs());
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<%include methods.wsx%>
+<%include logincheck.wsx%>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>New courses!</title>
+	<meta charset='utf-8' />
+	<link type="text/css" rel="StyleSheet" href="style/main.css" />
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery-ui.js"></script>
+	<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$(".topButton").mouseenter(function() {
+			$(this).addClass("highlightedTopButton");
+		});
+		$(".topButton").mouseleave(function() {
+			$(this).removeClass("highlightedTopButton");
+		});
+	});
+	
+	</script>
+</head>
+<body>
+    <%include topmenu.wsx%>
+    Hello!
+    <%include bottom.wsx%>
+</body>
+</html>
