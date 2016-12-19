@@ -18,3 +18,6 @@ Tutorials, examples, new versions coming soon ><
 
 ### Todo List ###
 * Add more documantation , preferably via the repo's wiki
+* Rewrite some classes, add SSL support
+* Sandbox the whole system
+* Support Linux via Mono or .Net core
