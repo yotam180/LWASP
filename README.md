@@ -17,4 +17,4 @@ Tutorials, examples, new versions coming soon ><
 
 
 ### Todo List ###
-* Contribute to the wiki
+* Add more documantation , preferably via the repo's wiki
