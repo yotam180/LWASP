@@ -14,10 +14,3 @@ So, we came with LWASP to make C# a scripting language for the web. It's easy as
 <b>Organized, simple, readable.</b>
 
 Tutorials, examples, new versions coming soon ><
-
-
-### Todo List ###
-* Add more documantation , preferably via the repo's wiki
-* Rewrite some classes, add SSL support
-* Sandbox the whole system
-* Support Linux via Mono or .Net core
